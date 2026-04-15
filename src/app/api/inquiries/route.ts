@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateInquiry } from '@/lib/validation';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { checkRateLimit, INQUIRY_RATE_LIMIT } from '@/lib/rate-limit';
 import { parseBody } from '@/lib/parse-body';
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
 
-  const { allowed } = checkRateLimit(ip);
+  const { allowed } = checkRateLimit(ip, INQUIRY_RATE_LIMIT, 'inquiry');
   if (!allowed) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
