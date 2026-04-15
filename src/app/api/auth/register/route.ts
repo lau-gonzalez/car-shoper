@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import { parseBody } from '@/lib/parse-body';
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
   const { email, password, name, agencyName, agencySlug } = body;
 
   if (!email || !password || !name || !agencyName || !agencySlug) {

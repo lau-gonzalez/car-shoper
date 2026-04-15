@@ -100,3 +100,24 @@ describe('GET /api/cars', () => {
     expect(data.every((c: { agencyId: string }) => c.agencyId === agencyId)).toBe(true);
   });
 });
+
+describe('POST /api/cars - malformed body', () => {
+  beforeEach(async () => {
+    mockAuth.mockResolvedValue({
+      user: { id: 'seller1', email: 'a@b.com', name: 'Seller', agencyId: 'test', agencyName: 'Test' },
+      expires: '',
+    });
+  });
+
+  it('returns 400 for invalid JSON', async () => {
+    const request = new Request('http://localhost/api/cars', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{broken json',
+    });
+    const res = await POST(request as never);
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toBe('Invalid request body');
+  });
+});

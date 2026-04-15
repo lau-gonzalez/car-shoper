@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { parseBody } from '@/lib/parse-body';
 
 export async function GET() {
   const session = await auth();
@@ -25,7 +26,8 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
   const errors: string[] = [];
 
   if (body.name !== undefined && (!body.name || typeof body.name !== 'string')) {
@@ -35,7 +37,8 @@ export async function PUT(request: NextRequest) {
   if (
     body.primaryColor !== undefined &&
     body.primaryColor !== null &&
-    !/^#[0-9a-fA-F]{6}$/.test(body.primaryColor)
+    (typeof body.primaryColor !== 'string' ||
+      !/^#[0-9a-fA-F]{6}$/.test(body.primaryColor))
   ) {
     errors.push('primaryColor must be a valid hex color (e.g. #0070f3)');
   }

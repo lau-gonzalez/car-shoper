@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { validateCar } from '@/lib/validation';
+import { parseBody } from '@/lib/parse-body';
 
 export async function GET(
   _request: NextRequest,
@@ -44,7 +45,8 @@ export async function PUT(
     return NextResponse.json({ error: 'Car not found' }, { status: 404 });
   }
 
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
   const { valid, errors } = validateCar(body, true);
   if (!valid) {
     return NextResponse.json({ error: errors.join(', ') }, { status: 400 });

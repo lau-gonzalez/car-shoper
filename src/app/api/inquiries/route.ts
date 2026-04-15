@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { validateInquiry } from '@/lib/validation';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { parseBody } from '@/lib/parse-body';
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
@@ -14,7 +15,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
 
   // Honeypot: if _hp field is filled, silently accept but don't store
   if (body._hp) {
