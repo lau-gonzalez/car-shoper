@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { validateCar } from '@/lib/validation';
+import { parseBody } from '@/lib/parse-body';
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -33,7 +34,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
   const { valid, errors } = validateCar(body);
   if (!valid) {
     return NextResponse.json({ error: errors.join(', ') }, { status: 400 });

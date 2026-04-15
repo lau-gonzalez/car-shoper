@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { parseBody } from '@/lib/parse-body';
 
 const VALID_STATUSES = ['unread', 'read', 'responded'];
 
@@ -46,9 +47,10 @@ export async function PATCH(
     return NextResponse.json({ error: 'Inquiry not found' }, { status: 404 });
   }
 
-  const body = await request.json();
+  const { body, error: parseError } = await parseBody(request);
+  if (!body) return parseError!;
 
-  if (!body.status || !VALID_STATUSES.includes(body.status)) {
+  if (!body.status || !VALID_STATUSES.includes(body.status as string)) {
     return NextResponse.json(
       { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
       { status: 400 },

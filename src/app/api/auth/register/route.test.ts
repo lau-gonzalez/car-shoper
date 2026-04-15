@@ -61,4 +61,16 @@ describe('POST /api/auth/register', () => {
     const data = await response.json();
     expect(data.error).toBe('Missing required fields');
   });
+
+  it('returns 400 for malformed JSON body', async () => {
+    const request = new Request('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'not json',
+    });
+    const response = await POST(request as never);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toBe('Invalid request body');
+  });
 });
