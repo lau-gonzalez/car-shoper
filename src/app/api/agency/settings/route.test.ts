@@ -69,6 +69,54 @@ describe('/api/agency/settings', () => {
     expect(res.status).toBe(400);
   });
 
+  it('PUT returns 400 for invalid email', async () => {
+    const req = new Request('http://localhost/api/agency/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contactEmail: 'not-an-email' }),
+    });
+    const res = await PUT(req as never);
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toContain('contactEmail');
+  });
+
+  it('PUT returns 400 for invalid logo URL', async () => {
+    const req = new Request('http://localhost/api/agency/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ logo: 'not-a-url' }),
+    });
+    const res = await PUT(req as never);
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toContain('logo');
+  });
+
+  it('PUT returns 400 for phone exceeding 30 chars', async () => {
+    const req = new Request('http://localhost/api/agency/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: 'x'.repeat(31) }),
+    });
+    const res = await PUT(req as never);
+    expect(res.status).toBe(400);
+    const data = await res.json();
+    expect(data.error).toContain('phone');
+  });
+
+  it('PUT accepts valid logo URL', async () => {
+    const req = new Request('http://localhost/api/agency/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ logo: 'https://example.com/logo.png' }),
+    });
+    const res = await PUT(req as never);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.logo).toBe('https://example.com/logo.png');
+  });
+
   it('returns 401 when not authenticated', async () => {
     mockAuth.mockResolvedValue(null);
     const res = await GET();
