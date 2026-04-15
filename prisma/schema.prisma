@@ -6,3 +6,26 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+model Agency {
+  id           String   @id @default(cuid())
+  name         String
+  slug         String   @unique
+  contactEmail String?
+  phone        String?
+  address      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sellers      Seller[]
+}
+
+model Seller {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
