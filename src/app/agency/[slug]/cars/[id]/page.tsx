@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import ContactForm from './contact-form';
 
 interface Props {
   params: Promise<{ slug: string; id: string }>;
@@ -122,6 +123,8 @@ export default async function CarDetailPage({ params }: Props) {
               <p style={{ color: '#888' }}>Contact information not available</p>
             )}
           </div>
+
+          <ContactForm carId={car.id} />
         </div>
       </div>
     </>

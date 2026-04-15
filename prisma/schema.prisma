@@ -8,18 +8,19 @@ datasource db {
 }
 
 model Agency {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  slug         String   @unique
+  slug         String    @unique
   logo         String?
-  primaryColor String?  @default("#0070f3")
+  primaryColor String?   @default("#0070f3")
   contactEmail String?
   phone        String?
   address      String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   sellers      Seller[]
   cars         Car[]
+  inquiries    Inquiry[]
 }
 
 model Seller {
@@ -34,17 +35,33 @@ model Seller {
 }
 
 model Car {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   make        String
   model       String
   year        Int
   price       Float
-  mileage     Int      @default(0)
+  mileage     Int       @default(0)
   description String?
-  images      String   @default("[]")
-  status      String   @default("available")
+  images      String    @default("[]")
+  status      String    @default("available")
   agencyId    String
-  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  agency      Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  inquiries   Inquiry[]
+}
+
+model Inquiry {
+  id           String   @id @default(cuid())
+  customerName String
+  email        String
+  phone        String?
+  message      String
+  status       String   @default("unread")
+  carId        String
+  car          Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+  agencyId     String
+  agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
