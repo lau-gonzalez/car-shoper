@@ -62,6 +62,14 @@ describe('POST /api/auth/register', () => {
     expect(data.error).toBe('Missing required fields');
   });
 
+  it('returns 400 for password shorter than 8 characters', async () => {
+    const request = makeRequest({ ...validBody, password: 'short' });
+    const response = await POST(request as never);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toBe('Password must be at least 8 characters');
+  });
+
   it('returns 400 for malformed JSON body', async () => {
     const request = new Request('http://localhost:3000/api/auth/register', {
       method: 'POST',
