@@ -15,6 +15,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (typeof password !== 'string' || password.length < 8) {
+    return NextResponse.json(
+      { error: 'Password must be at least 8 characters' },
+      { status: 400 },
+    );
+  }
+
   const existingSeller = await prisma.seller.findUnique({ where: { email } });
   if (existingSeller) {
     return NextResponse.json(
