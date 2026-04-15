@@ -32,6 +32,8 @@ model Seller {
   agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([agencyId])
 }
 
 model Car {
@@ -49,6 +51,8 @@ model Car {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   inquiries   Inquiry[]
+
+  @@index([agencyId])
 }
 
 model Inquiry {
@@ -64,4 +68,7 @@ model Inquiry {
   agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([agencyId])
+  @@index([carId])
 }
