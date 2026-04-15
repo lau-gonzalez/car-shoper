@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { prisma } from '@/lib/prisma';
+import { resetRateLimit } from '@/lib/rate-limit';
 import { POST } from './route';
 
 function makeRequest(body: Record<string, string>) {
@@ -20,6 +21,7 @@ const validBody = {
 
 describe('POST /api/auth/register', () => {
   beforeEach(async () => {
+    resetRateLimit();
     await prisma.seller.deleteMany();
     await prisma.agency.deleteMany();
   });
@@ -68,6 +70,25 @@ describe('POST /api/auth/register', () => {
     expect(response.status).toBe(400);
     const data = await response.json();
     expect(data.error).toBe('Password must be at least 8 characters');
+  });
+
+  it('returns 429 after rate limit exceeded', async () => {
+    for (let i = 0; i < 10; i++) {
+      const request = makeRequest({
+        ...validBody,
+        email: `user${i}@example.com`,
+        agencySlug: `agency-${i}`,
+      });
+      await POST(request as never);
+    }
+
+    const request = makeRequest({
+      ...validBody,
+      email: 'blocked@example.com',
+      agencySlug: 'blocked-agency',
+    });
+    const response = await POST(request as never);
+    expect(response.status).toBe(429);
   });
 
   it('returns 400 for malformed JSON body', async () => {

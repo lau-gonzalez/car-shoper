@@ -2,8 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { parseBody } from '@/lib/parse-body';
+import { checkRateLimit, AUTH_RATE_LIMIT } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+  const { allowed } = checkRateLimit(ip, AUTH_RATE_LIMIT, 'register');
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again later.' },
+      { status: 429 },
+    );
+  }
+
   const { body, error: parseError } = await parseBody(request);
   if (!body) return parseError!;
   const { email, password, name, agencyName, agencySlug } = body;
