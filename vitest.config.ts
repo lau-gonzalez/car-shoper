@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     include: ['**/*.test.ts', '**/*.test.tsx'],
+    fileParallelism: false,
   },
   resolve: {
     alias: {
