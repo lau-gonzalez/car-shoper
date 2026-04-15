@@ -35,6 +35,40 @@ export async function PUT(request: NextRequest) {
   }
 
   if (
+    body.contactEmail !== undefined &&
+    body.contactEmail !== null &&
+    body.contactEmail !== '' &&
+    (typeof body.contactEmail !== 'string' ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contactEmail))
+  ) {
+    errors.push('contactEmail must be a valid email address');
+  }
+
+  if (body.phone !== undefined && body.phone !== null && body.phone !== '') {
+    if (typeof body.phone !== 'string' || body.phone.length > 30) {
+      errors.push('phone must be a string of at most 30 characters');
+    }
+  }
+
+  if (body.address !== undefined && body.address !== null && body.address !== '') {
+    if (typeof body.address !== 'string' || body.address.length > 200) {
+      errors.push('address must be a string of at most 200 characters');
+    }
+  }
+
+  if (body.logo !== undefined && body.logo !== null && body.logo !== '') {
+    if (typeof body.logo !== 'string') {
+      errors.push('logo must be a string');
+    } else {
+      try {
+        new URL(body.logo);
+      } catch {
+        errors.push('logo must be a valid URL');
+      }
+    }
+  }
+
+  if (
     body.primaryColor !== undefined &&
     body.primaryColor !== null &&
     (typeof body.primaryColor !== 'string' ||
