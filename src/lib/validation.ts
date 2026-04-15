@@ -64,3 +64,40 @@ export function validateCar(
 
   return { valid: errors.length === 0, errors };
 }
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+interface InquiryInput {
+  customerName?: string;
+  email?: string;
+  phone?: string;
+  message?: string;
+  carId?: string;
+}
+
+export function validateInquiry(body: InquiryInput): {
+  valid: boolean;
+  errors: string[];
+} {
+  const errors: string[] = [];
+
+  if (!body.customerName || typeof body.customerName !== 'string' || !body.customerName.trim()) {
+    errors.push('customerName is required');
+  }
+
+  if (!body.email || typeof body.email !== 'string' || !EMAIL_REGEX.test(body.email)) {
+    errors.push('a valid email is required');
+  }
+
+  if (!body.message || typeof body.message !== 'string' || !body.message.trim()) {
+    errors.push('message is required');
+  } else if (body.message.length > 2000) {
+    errors.push('message must be under 2000 characters');
+  }
+
+  if (!body.carId || typeof body.carId !== 'string') {
+    errors.push('carId is required');
+  }
+
+  return { valid: errors.length === 0, errors };
+}
